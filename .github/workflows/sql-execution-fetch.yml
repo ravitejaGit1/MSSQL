@@ -1,0 +1,36 @@
+name: Connect to SQL Server
+
+on:
+ push: 
+  branches:
+   - master
+
+jobs:
+ build:
+  runs-on: ubuntu-latest
+
+  steps:
+  - name : Checkout code
+    uses: actions/checkout@v2
+
+  - name : Check if SQL file exists
+    run: |
+     if (Test-Path -Path ./fetch.sql) {
+      Write-Host " SQL file exists."
+     } else {
+     Write-Error "SQL file does not exist."
+     }
+  - name: Excute SQLCMD Script using Powershell
+    env:
+     SQL_SERVER: ${{ secrets.SQL_SERVER }}
+     SQL_DATABASE: ${{ secrets.SQL_DATABASE }}
+     SQL_USER: ${{ secrets.SQL_USER }}
+     SQL_PASSWORD: ${{ secrets.SQL_PASSWORD }}
+    run: |
+     powershell -File run-sql-query.ps1 -server $env:SQL_SERVER -database $env:SQL_DATABASE -user $env:SQL_USER -password $env:SQL_PASSWORD -queryFile
+     "./fetch.sql" outputFile "./output.txt"
+  - name: Display output
+    run: |
+      type output.txt
+
+   
