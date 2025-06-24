@@ -1,0 +1,43 @@
+name: Execute to SQL Query
+
+on:
+ push: 
+  branches:
+   - master
+
+jobs:
+ build:
+  runs-on: ubuntu-latest
+  steps:
+  - name: Checkout repository
+    uses: actions/checkout@v2
+
+  - name : Check if SQL file exists
+    run: |
+     if exist insert_data.sql) {
+      echo SQL file exists.
+     } else {
+      echo SQL file does not exist.
+      exit /b1
+     }
+     shell: cmd
+     
+  - name: Excute SQLCMD Script directly
+    env:
+     SQL_SERVER: ${{ secrets.SQL_SERVER }}
+     SQL_DATABASE: ${{ secrets.SQL_DATABASE }}
+     SQL_USER: ${{ secrets.SQL_USER }}
+     SQL_PASSWORD: ${{ secrets.SQL_PASSWORD }}
+    run: |
+     echo %SQL_SERVER%
+     echo %SQL_DATABASE%
+     echo %SQL_USER%
+     echo %SQL_PASSWORD%
+     sqlcmd -S %SQL_SERVER% -d %SQL_DATABASE% - U %SQL_USER% -P %SQL_PASSWORD% -i "insert_data.sql" -o "output_2.txt"
+     
+  - name: Display output
+    run: |
+      type output_2.txt
+      shell: cmd
+
+   
